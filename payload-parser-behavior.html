@@ -107,18 +107,26 @@ the License.
       if (!arr) {
         return result;
       }
-      arr.forEach(function(item) {
-        var name = this._paramValue(item.name);
-        var value = this._paramValue(item.value);
-        if (!name && !value) {
-          return;
-        }
-        if (result) {
-          result += '&';
-        }
-        result += name + '=' + value;
-      }, this);
+      result = arr.forEach(function(item) {
+        return this._modelItemToFormDataString(item);
+      }, this).join('&');
       return result;
+    },
+    /**
+     * Creates a form data string for a single item.
+     * @param {Object} model The model with `name` and `value` properties.
+     * @return {String} Generated value string for x-www-form-urlencoded form.
+     */
+    _modelItemToFormDataString: function(model) {
+      var name = this._paramValue(model.name);
+      var value = model.value;
+      if (value && value instanceof Array) {
+        return value.forEach(function(item) {
+          return name + '=' + this._paramValue(item);
+        }, this).join('&');
+      }
+      value = this._paramValue(value);
+      return name + '=' + value;
     },
 
     /**
